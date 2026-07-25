@@ -63,9 +63,9 @@ const bloomPass = new UnrealBloomPass(
     window.innerWidth,
     window.innerHeight
   ),
-  2.0,
-  0.6,
-  0.2
+  2.5,
+  0.8,
+  0.23
 )
 
 composer.addPass(bloomPass)
@@ -137,80 +137,6 @@ function getStarColor(bp_rp) {
   return new THREE.Color(0xff6b6b)
 }
 
-// --------------------------------------------------
-// TRIANGULATION UPDATE
-// --------------------------------------------------
-
-function updateTriangle() {
-
-  if (triangleMesh) {
-    scene.remove(triangleMesh)
-    triangleMesh.geometry.dispose()
-  }
-
-  if (selectedStars.length < 2)
-    return
-
-  const verts = []
-
-  function addLine(a, b) {
-
-    const ai = a * 3
-    const bi = b * 3
-
-    verts.push(
-      starPositions[ai],
-      starPositions[ai + 1],
-      starPositions[ai + 2]
-    )
-
-    verts.push(
-      starPositions[bi],
-      starPositions[bi + 1],
-      starPositions[bi + 2]
-    )
-  }
-
-  addLine(
-    selectedStars[0],
-    selectedStars[1]
-  )
-
-  if (selectedStars.length === 3) {
-
-    addLine(
-      selectedStars[1],
-      selectedStars[2]
-    )
-
-    addLine(
-      selectedStars[2],
-      selectedStars[0]
-    )
-  }
-
-  const geometry =
-    new THREE.BufferGeometry()
-
-  geometry.setAttribute(
-    'position',
-    new THREE.Float32BufferAttribute(
-      verts,
-      3
-    )
-  )
-
-  triangleMesh =
-    new THREE.LineSegments(
-      geometry,
-      new THREE.LineBasicMaterial({
-        color: 0x00ffff
-      })
-    )
-
-  scene.add(triangleMesh)
-
-}
 
 // --------------------------------------------------
 // CLICK TO SELECT
@@ -273,7 +199,6 @@ window.addEventListener(
       selectedStars
     )
 
-    updateTriangle()
     updateSelectionMarkers()
   }
 )
@@ -294,13 +219,17 @@ function updateSelectionMarkers() {
       new THREE.Mesh(
 
         new THREE.SphereGeometry(
-          0.25,
+          0.18,
           16,
           16
         ),
 
         new THREE.MeshBasicMaterial({
-          color: 0x00ffff
+          color: 0x88ffff,
+          emissive: 0x00ffff,
+          emissiveIntensity: 10,
+          transparent: true,
+          opacity: 0.85
         })
       )
 
