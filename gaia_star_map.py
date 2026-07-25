@@ -103,9 +103,16 @@ for i in range(len(results)):
 
     stars.append({
         "source_id": int(results['source_id'][i]),
+
+        "ra": clean(results['ra'][i]),
+        "dec": clean(results['dec'][i]),
+
+        "distance_pc": clean(distance[i]),
+
         "x": x_i,
         "y": y_i,
         "z": z_i,
+
         "mag": mag,
         "color_index": bp_rp
     })
@@ -123,7 +130,7 @@ for s in stars:
 # -------------------------
 # WRITE JSON
 # -------------------------
-with open("stars.json", "w") as f:
+with open("public/stars.json", "w") as f:
     json.dump({"stars": clean_stars}, f)
 
 print("Saved stars:", len(clean_stars))
