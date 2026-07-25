@@ -256,10 +256,10 @@ window.addEventListener(
       starNameElement.innerHTML =
       `
       Gaia ID: ${star.source_id}<br>
+      RA: ${star.ra?.toFixed(4) ?? "?"}<br>
+      Dec: ${star.dec?.toFixed(4) ?? "?"}<br>
+      Distance: ${star.distance_pc?.toFixed(2) ?? "?"} pc<br>
       Mag: ${star.mag?.toFixed(2) ?? "?"}<br>
-      X: ${star.x.toFixed(1)}<br>
-      Y: ${star.y.toFixed(1)}<br>
-      Z: ${star.z.toFixed(1)}
       `
     }
 
