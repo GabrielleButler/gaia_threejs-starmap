@@ -1,9 +1,12 @@
 import ssl
+import os
 import certifi
 import json
 import math
 import numpy as np
 from astroquery.gaia import Gaia
+import pandas as pd
+from scipy.spatial import cKDTree
 
 # -------------------------
 # SSL FIX
@@ -61,23 +64,36 @@ def clean(v):
 
     except:
         return None
+
+# -------------------------
+# PANDAS AND HYG CROSS MATCH
+# -------------------------
+script_dir = os.path.dirname(os.path.abspath(__file__))
+hyg_path = os.path.join(script_dir, "hygdata_v42.csv.gz")
+
+hyg = pd.read_csv(hyg_path)
+hyg = hyg.dropna(subset=["ra", "dec"])
+
+tree = cKDTree(hyg[["ra", "dec"]].to_numpy())
+
 # -------------------------
 # COMPUTE 3D POSITIONS
 # -------------------------
-ra = np.radians(results['ra'])
-dec = np.radians(results['dec'])
+ra = np.radians(results["ra"])
+dec = np.radians(results["dec"])
 
-parallax = results['parallax']
+parallax = results["parallax"]
 
 distance = []
+
 for p in parallax:
     p = clean(p)
+
     if p is None or p <= 0:
         distance.append(None)
     else:
         distance.append(1000.0 / p)
 
-# IMPORTANT: convert to arrays AFTER building safely
 distance = np.array(distance, dtype=object)
 
 x = distance * np.cos(dec) * np.cos(ra)
@@ -90,6 +106,24 @@ z = distance * np.sin(dec)
 stars = []
 
 for i in range(len(results)):
+    gaia_ra = clean(results["ra"][i])
+    gaia_dec = clean(results["dec"][i])
+
+    name = None
+    spectral = None
+
+    if gaia_ra is not None and gaia_dec is not None:
+        dist, idx = tree.query([gaia_ra, gaia_dec])
+
+        if dist < 0.001:
+
+            match = hyg.iloc[idx]
+
+            if pd.notna(match["proper"]) and match["proper"] != "":
+                name = match["proper"]
+
+            if pd.notna(match["spect"]):
+                spectral = match["spect"]
 
     x_i = clean(x[i])
     y_i = clean(y[i])
@@ -103,11 +137,14 @@ for i in range(len(results)):
 
     stars.append({
         "source_id": int(results['source_id'][i]),
+        "name": name,
 
         "ra": clean(results['ra'][i]),
         "dec": clean(results['dec'][i]),
 
         "distance_pc": clean(distance[i]),
+
+        "spectral_type": spectral,
 
         "x": x_i,
         "y": y_i,
@@ -134,3 +171,4 @@ with open("public/stars.json", "w") as f:
     json.dump({"stars": clean_stars}, f)
 
 print("Saved stars:", len(clean_stars))
+print(hyg[["ra", "dec"]].head())
