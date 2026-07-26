@@ -77,12 +77,54 @@ composer.addPass(bloomPass)
 const keys = {}
 const velocity = new THREE.Vector3()
 
+let isDragging = false
+
+let yaw = 0
+let pitch = 0
+
+const mouseSensitivity = 0.003
+
 window.addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true
 })
 
 window.addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false
+})
+
+window.addEventListener('mousedown', (event) => {
+  if (event.button === 0) {
+    isDragging = true
+  }
+})
+
+window.addEventListener('mouseup', () => {
+  isDragging = false
+})
+
+window.addEventListener('mouseleave', () => {
+  isDragging = false
+})
+
+window.addEventListener('mousemove', (event) => {
+
+  if (!isDragging) return
+
+  yaw -= event.movementX * mouseSensitivity
+  pitch -= event.movementY * mouseSensitivity
+
+  const limit = Math.PI / 2 - 0.01
+
+  pitch = Math.max(
+    -limit,
+    Math.min(limit, pitch)
+  )
+
+  camera.rotation.order = 'YXZ'
+
+  camera.rotation.y = yaw
+  camera.rotation.x = pitch
+
 })
 
 // --------------------------------------------------
@@ -106,12 +148,6 @@ raycaster.params.Points.threshold = 0.3
 const mouse = new THREE.Vector2()
 
 let selectedStars = []
-
-// --------------------------------------------------
-// TRIANGULATION CREATION
-// --------------------------------------------------
-
-let triangleMesh = null
 
 // --------------------------------------------------
 // COLOR LOGIC
@@ -371,17 +407,34 @@ function animate() {
   const accel = 0.08
   const damp = 0.98
 
+  const forward = new THREE.Vector3()
+camera.getWorldDirection(forward)
+
+const right = new THREE.Vector3()
+right.crossVectors(
+  forward,
+  camera.up
+).normalize()
+
   if (keys.w)
-    velocity.z -= accel
+    velocity.add(
+      forward.clone().multiplyScalar(accel)
+    )
 
   if (keys.s)
-    velocity.z += accel
+    velocity.add(
+      forward.clone().multiplyScalar(-accel)
+    )
 
   if (keys.a)
-    velocity.x -= accel
+    velocity.add(
+      right.clone().multiplyScalar(accel)
+    )
 
   if (keys.d)
-    velocity.x += accel
+    velocity.add(
+      right.clone().multiplyScalar(-accel)
+    )
 
   if (keys.q)
     velocity.y += accel
