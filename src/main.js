@@ -179,13 +179,22 @@ window.addEventListener(
       starNameElement
     ) {
 
-      starNameElement.innerHTML =
-      `
+      const displayName =
+        star.name && star.name.trim() !== ""
+          ? star.name
+          : `Gaia DR3 ${star.source_id}`
+
+      starNameElement.innerHTML = `
+      <b style="font-size:18px;">
+      ${displayName}
+      </b><br><br>
+
       Gaia ID: ${star.source_id}<br>
-      RA: ${star.ra?.toFixed(4) ?? "?"}<br>
-      Dec: ${star.dec?.toFixed(4) ?? "?"}<br>
+      Spectral Type: ${star.spectral_type ?? "Unknown"}<br>
+      RA: ${star.ra?.toFixed(4) ?? "?"}°<br>
+      Dec: ${star.dec?.toFixed(4) ?? "?"}°<br>
       Distance: ${star.distance_pc?.toFixed(2) ?? "?"} pc<br>
-      Mag: ${star.mag?.toFixed(2) ?? "?"}<br>
+      Magnitude: ${star.mag?.toFixed(2) ?? "?"}
       `
     }
 

@@ -79,6 +79,8 @@ hyg["ra"] = hyg["ra"] * 15.0
 
 tree = cKDTree(hyg[["ra", "dec"]].to_numpy())
 
+matches = 0
+
 # -------------------------
 # COMPUTE 3D POSITIONS
 # -------------------------
@@ -118,8 +120,8 @@ for i in range(len(results)):
     if gaia_ra is not None and gaia_dec is not None:
         dist, idx = tree.query([gaia_ra, gaia_dec])
 
-        if dist < 0.001:
-
+        if dist < 0.01:
+            matches += 1
             match = hyg.iloc[idx]
 
             if pd.notna(match["proper"]) and match["proper"] != "":
@@ -156,6 +158,7 @@ for i in range(len(results)):
         "mag": mag,
         "color_index": bp_rp
     })
+print("Stars matched with HYG:", matches)
 
 # FINAL SAFETY FILTER (removes hidden NaNs)
 clean_stars = []
