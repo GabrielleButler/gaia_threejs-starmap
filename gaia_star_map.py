@@ -74,6 +74,9 @@ hyg_path = os.path.join(script_dir, "hygdata_v42.csv.gz")
 hyg = pd.read_csv(hyg_path)
 hyg = hyg.dropna(subset=["ra", "dec"])
 
+# Convert HYG RA from hours to degrees
+hyg["ra"] = hyg["ra"] * 15.0
+
 tree = cKDTree(hyg[["ra", "dec"]].to_numpy())
 
 # -------------------------
@@ -171,4 +174,3 @@ with open("public/stars.json", "w") as f:
     json.dump({"stars": clean_stars}, f)
 
 print("Saved stars:", len(clean_stars))
-print(hyg[["ra", "dec"]].head())
