@@ -18,6 +18,49 @@ const cameraPosElement = document.getElementById('cameraPos')
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x000000)
 
+// 3D GRID 
+// --------------------------------------------------
+const GRID_SIZE = 400
+const GRID_DIVISIONS = 40
+
+// XZ Plane (floor)
+const gridXZ = new THREE.GridHelper(
+  GRID_SIZE,
+  GRID_DIVISIONS,
+  0x00ffff,
+  0x003333
+)
+gridXZ.material.transparent = true
+gridXZ.material.opacity = 0.3
+
+scene.add(gridXZ)
+
+// XY Plane (back wall)
+const gridXY = new THREE.GridHelper(
+  GRID_SIZE,
+  GRID_DIVISIONS,
+  0x00ffff,
+  0x003333
+)
+gridXY.material.transparent = true
+gridXY.material.opacity = 0.3
+
+gridXY.rotation.x = Math.PI / 2
+scene.add(gridXY)
+
+// YZ Plane (side wall)
+const gridYZ = new THREE.GridHelper(
+  GRID_SIZE,
+  GRID_DIVISIONS,
+  0x00ffff,
+  0x003333
+)
+gridYZ.material.transparent = true
+gridYZ.material.opacity = 0.3
+
+gridYZ.rotation.z = Math.PI / 2
+scene.add(gridYZ)
+
 // CAMERA CREATION
 // --------------------------------------------------
 const camera = new THREE.PerspectiveCamera(
