@@ -25,3 +25,15 @@ body {
 
   z-index: 100;
 }
+
+.starLabel {
+  color: white;
+  font-size: 13px;
+  font-family: monospace;
+  text-shadow:
+    0 0 8px cyan,
+    0 0 8px cyan;
+  
+  user-select: none;
+  white-space: nowrap;
+}

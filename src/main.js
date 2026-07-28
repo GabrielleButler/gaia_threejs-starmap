@@ -5,6 +5,11 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 
+import {
+  CSS2DRenderer,
+  CSS2DObject
+} from 'three/examples/jsm/renderers/CSS2DRenderer.js'
+
 console.log("CELESTIAL NAVIGATION MAP")
 
 // HUD CONNECTION
@@ -78,6 +83,19 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true
 })
 
+// Label Creation
+const labelRenderer = new CSS2DRenderer()
+labelRenderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+)
+
+labelRenderer.domElement.style.position = 'absolute'
+labelRenderer.domElement.style.top = '0'
+labelRenderer.domElement.style.pointerEvents = 'none'
+
+document.body.appendChild(labelRenderer.domElement)
+
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(window.devicePixelRatio)
 
@@ -112,6 +130,8 @@ let isDragging = false
 
 let yaw = 0
 let pitch = 0
+
+let starLabels = []
 
 const mouseSensitivity = 0.003
 
@@ -339,6 +359,21 @@ fetch('/stars.json')
       const y = s.y * SCALE
       const z = s.z * SCALE
 
+      if (s.name) {
+        const div = document.createElement('div')
+        div.className = "starLabel"
+        div.textContent = s.name
+        
+        const label = new CSS2DObject(div)
+        label.position.set(
+          x,
+          y,
+          z
+        )
+        scene.add(label)
+        starLabels.push(label)
+      }
+
       positions.push(
         x,
         y,
@@ -465,6 +500,23 @@ right.crossVectors(
   camera.position.add(
     velocity
   )
+
+  starLabels.forEach(label => {
+
+    const distance =
+        camera.position.distanceTo(
+            label.position
+        )
+
+    const alpha =
+        Math.max(
+            0,
+            1 - distance / 50
+        )
+
+    label.element.style.opacity = alpha
+})
+
   if (cameraPosElement) {
 
     cameraPosElement.textContent =
@@ -475,6 +527,11 @@ right.crossVectors(
   }
 
   composer.render()
+
+  labelRenderer.render(
+    scene,
+    camera
+  )
 }
 
 animate()
