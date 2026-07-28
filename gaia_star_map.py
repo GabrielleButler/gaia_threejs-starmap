@@ -8,15 +8,13 @@ from astroquery.gaia import Gaia
 import pandas as pd
 from scipy.spatial import cKDTree
 
-# -------------------------
 # SSL FIX
 # -------------------------
 ssl._create_default_https_context = lambda: ssl.create_default_context(
     cafile=certifi.where()
 )
 
-# -------------------------
-# GAIA QUERY
+# GAIA SQL QUERY
 # -------------------------
 query = """
 SELECT TOP 25000
@@ -36,7 +34,6 @@ results = job.get_results()
 
 print("Stars retrieved:", len(results))
 
-# -------------------------
 # SAFE CONVERSION
 # -------------------------
 def clean(v):
@@ -54,7 +51,7 @@ def clean(v):
 
         v = float(v)
 
-        if v != v:  # catches NaN (important trick)
+        if v != v:  # catches NaN (important trick i still don't fully understand)
             return None
 
         if v == float("inf") or v == float("-inf"):
@@ -65,8 +62,7 @@ def clean(v):
     except:
         return None
 
-# -------------------------
-# PANDAS AND HYG CROSS MATCH
+# HYG CROSS MATCHING
 # -------------------------
 script_dir = os.path.dirname(os.path.abspath(__file__))
 hyg_path = os.path.join(script_dir, "hygdata_v42.csv.gz")
@@ -77,11 +73,10 @@ hyg = hyg.dropna(subset=["ra", "dec"])
 # Convert HYG RA from hours to degrees
 hyg["ra"] = hyg["ra"] * 15.0
 
-tree = cKDTree(hyg[["ra", "dec"]].to_numpy())
+tree = cKDTree(hyg[["ra", "dec"]].to_numpy()) #so matching doesn't take forever
 
 matches = 0
 
-# -------------------------
 # COMPUTE 3D POSITIONS
 # -------------------------
 ra = np.radians(results["ra"])
@@ -105,7 +100,6 @@ x = distance * np.cos(dec) * np.cos(ra)
 y = distance * np.cos(dec) * np.sin(ra)
 z = distance * np.sin(dec)
 
-# -------------------------
 # EXPORT CLEAN STARS
 # -------------------------
 stars = []
@@ -160,7 +154,8 @@ for i in range(len(results)):
     })
 print("Stars matched with HYG:", matches)
 
-# FINAL SAFETY FILTER (removes hidden NaNs)
+# FINAL SAFETY FILTER (removes hidden NaNs, again)
+# -------------------------
 clean_stars = []
 for s in stars:
     if (
@@ -170,7 +165,6 @@ for s in stars:
     ):
         clean_stars.append(s)
 
-# -------------------------
 # WRITE JSON
 # -------------------------
 with open("public/stars.json", "w") as f:

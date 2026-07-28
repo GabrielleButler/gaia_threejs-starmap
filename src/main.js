@@ -7,25 +7,19 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 
 console.log("CELESTIAL NAVIGATION MAP")
 
-// --------------------------------------------------
 // HUD CONNECTION
 // --------------------------------------------------
-
 const starNameElement = document.getElementById('starName')
 const starCountElement = document.getElementById('starCount')
 const cameraPosElement = document.getElementById('cameraPos')
 
-// --------------------------------------------------
 // SCENE CREATION
 // --------------------------------------------------
-
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x000000)
 
-// --------------------------------------------------
 // CAMERA CREATION
 // --------------------------------------------------
-
 const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
@@ -35,10 +29,8 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.set(0, 0, 25)
 
+// RENDERER THINGY
 // --------------------------------------------------
-// RENDERER THING
-// --------------------------------------------------
-
 const renderer = new THREE.WebGLRenderer({
   antialias: true
 })
@@ -48,10 +40,8 @@ renderer.setPixelRatio(window.devicePixelRatio)
 
 document.body.appendChild(renderer.domElement)
 
-// --------------------------------------------------
 // BLOOM & BRIGHTNESS
 // --------------------------------------------------
-
 const composer = new EffectComposer(renderer)
 
 composer.addPass(
@@ -70,10 +60,8 @@ const bloomPass = new UnrealBloomPass(
 
 composer.addPass(bloomPass)
 
-// --------------------------------------------------
 // CONTROL INTEGRATION
 // --------------------------------------------------
-
 const keys = {}
 const velocity = new THREE.Vector3()
 
@@ -127,10 +115,8 @@ window.addEventListener('mousemove', (event) => {
 
 })
 
-// --------------------------------------------------
 // STAR DATA STORAGE
 // --------------------------------------------------
-
 const SCALE = 5
 
 let starPoints = null
@@ -138,10 +124,8 @@ let starPositions = []
 let starData = []
 let selectionMarkers = []
 
-// --------------------------------------------------
 // SELECTION OF STARS
 // --------------------------------------------------
-
 const raycaster = new THREE.Raycaster()
 raycaster.params.Points.threshold = 0.3
 
@@ -149,10 +133,8 @@ const mouse = new THREE.Vector2()
 
 let selectedStars = []
 
-// --------------------------------------------------
 // COLOR LOGIC
 // --------------------------------------------------
-
 function getStarColor(bp_rp) {
 
   if (bp_rp == null)
@@ -173,11 +155,8 @@ function getStarColor(bp_rp) {
   return new THREE.Color(0xff6b6b)
 }
 
-
-// --------------------------------------------------
 // CLICK TO SELECT
 // --------------------------------------------------
-
 window.addEventListener(
   'click',
   event => {
@@ -290,10 +269,8 @@ function updateSelectionMarkers() {
   })
 }
 
-// --------------------------------------------------
 // LOAD GAIA DATA
 // --------------------------------------------------
-
 fetch('/stars.json')
   .then(r => r.json())
   .then(data => {
@@ -394,10 +371,8 @@ fetch('/stars.json')
     console.error(err)
   })
 
-// --------------------------------------------------
 // ANIMATION
 // --------------------------------------------------
-
 function animate() {
 
   requestAnimationFrame(
@@ -461,10 +436,8 @@ right.crossVectors(
 
 animate()
 
-// --------------------------------------------------
 // RESIZE
 // --------------------------------------------------
-
 window.addEventListener(
   'resize',
   () => {
